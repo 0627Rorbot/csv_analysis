@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Race Analysis Tool</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/papaparse/5.3.0/papaparse.min.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #2d3748;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .subtitle {
+            color: #4a5568;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .upload-area {
+            border: 2px dashed #cbd5e0;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: border-color 0.3s ease;
+        }
+
+        .upload-area:hover {
+            border-color: #4299e1;
+        }
+
+        .upload-icon {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 16px;
+            color: #718096;
+        }
+
+        .analyze-button {
+            background-color: #4299e1;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            width: 100%;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .analyze-button:hover {
+            background-color: #3182ce;
+        }
+
+        .analyze-button:disabled {
+            background-color: #cbd5e0;
+            cursor: not-allowed;
+        }
+
+        #results {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 6px;
+            background-color: #f7fafc;
+            display: none;
+        }
+
+        #fileInput {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Race Analysis Tool</h1>
+        <p class="subtitle">Upload your race data CSV file to analyze</p>
+        
+        <div class="upload-area" id="dropZone">
+            <svg class="upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+            </svg>
+            <p>Drop your CSV file here or click to browse</p>
+        </div>
+        <input type="file" id="fileInput" accept=".csv">
+        
+        <button class="analyze-button" id="analyzeButton" disabled>Analyze Race Data</button>
+        
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const analyzeButton = document.getElementById('analyzeButton');
+        const results = document.getElementById('results');
+        let selectedFile = null;
+
+        // Handle file selection via click
+        dropZone.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        // Handle file selection changes
+        fileInput.addEventListener('change', (e) => {
+            handleFileSelect(e.target.files[0]);
+        });
+
+        // Handle drag and drop
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = '#4299e1';
+        });
+
+        dropZone.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = '#cbd5e0';
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = '#cbd5e0';
+            handleFileSelect(e.dataTransfer.files[0]);
+        });
+
+        // Handle file selection
+        function handleFileSelect(file) {
+            if (file && file.type === 'text/csv') {
+                selectedFile = file;
+                dropZone.innerHTML = `
+                    <svg class="upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                    </svg>
+                    <p>${file.name}</p>
+                `;
+                analyzeButton.disabled = false;
+            } else {
+                alert('Please select a valid CSV file');
+            }
+        }
+
+        // Handle analysis
+        analyzeButton.addEventListener('click', () => {
+            if (!selectedFile) return;
+
+            Papa.parse(selectedFile, {
+                complete: function(results) {
+                    analyzeRaceData(results.data);
+                },
+                header: true
+            });
+        });
+
+        // Analyze race data
+        function analyzeRaceData(data) {
+            // Example analysis - modify based on your CSV structure
+            const totalParticipants = data.length;
+            let avgTime = 0;
+            let fastestTime = Infinity;
+            let slowestTime = 0;
+
+            // Assuming there's a 'time' column in the CSV
+            data.forEach(row => {
+                if (row.time) {
+                    const time = parseFloat(row.time);
+                    avgTime += time;
+                    fastestTime = Math.min(fastestTime, time);
+                    slowestTime = Math.max(slowestTime, time);
+                }
+            });
+
+            avgTime /= totalParticipants;
+
+            // Display results
+            results.style.display = 'block';
+            results.innerHTML = `
+                <h3>Analysis Results:</h3>
+                <p>Total Participants: ${totalParticipants}</p>
+                <p>Average Time: ${avgTime.toFixed(2)}</p>
+                <p>Fastest Time: ${fastestTime.toFixed(2)}</p>
+                <p>Slowest Time: ${slowestTime.toFixed(2)}</p>
+            `;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+{# templates/base.html #}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Cognibly - Find Your Dream Job{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/normalize.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}">
+</head>
+<body>
+    {% include 'components/header.html' %}
+    
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    {% include 'components/footer.html' %}
+    
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
+
+{# templates/index.html #}
+{% extends "base.html" %}
+
+{% block content %}
+    {% include 'components/hero.html' %}
+    {% include 'components/stats.html' %}
+    {% include 'components/how-it-works.html' %}
+    {% include 'components/features.html' %}
+    {% include 'components/pricing.html' %}
+    {% include 'components/testimonials.html' %}
+    {% include 'components/cta.html' %}
+{% endblock %}

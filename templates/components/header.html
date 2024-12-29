@@ -1,0 +1,26 @@
+{# templates/components/header.html #}
+<header class="site-header">
+    <div class="container">
+        <nav class="main-nav">
+            <a href="/" class="logo">
+                <img src="{{ url_for('static', filename='images/logo.svg') }}" alt="Cognibly">
+            </a>
+            
+            <button class="mobile-menu-toggle" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+
+            <div class="nav-links">
+                <a href="#how-it-works">How it Works</a>
+                <a href="#pricing">Pricing</a>
+                <a href="#contact">Contact</a>
+                <div class="auth-buttons">
+                    <a href="/sign-in" class="btn-text">Sign In</a>
+                    <a href="/get-started" class="btn-primary">Get Started</a>
+                </div>
+            </div>
+        </nav>
+    </div>
+</header>
